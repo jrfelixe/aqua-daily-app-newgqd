@@ -1,129 +1,152 @@
-import React from "react";
-import { Stack, Link } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View, Text, Alert, Platform } from "react-native";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
 
-const ICON_COLOR = "#007AFF";
+import React from "react";
+import { Stack, Link, router } from "expo-router";
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from "react-native";
+import { IconSymbol } from "@/components/IconSymbol";
+import { colors, commonStyles } from "@/styles/commonStyles";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const theme = useTheme();
-  const modalDemos = [
+  const menuItems = [
     {
-      title: "Standard Modal",
-      description: "Full screen modal presentation",
-      route: "/modal",
-      color: "#007AFF",
+      title: "Water Tracker",
+      description: "Track your daily water intake",
+      route: "/(tabs)/(home)/water-tracker",
+      icon: "drop.fill",
+      color: colors.primary,
     },
     {
-      title: "Form Sheet",
-      description: "Bottom sheet with detents and grabber",
-      route: "/formsheet",
-      color: "#34C759",
+      title: "History",
+      description: "View your hydration history",
+      route: "/(tabs)/(home)/history",
+      icon: "chart.bar.fill",
+      color: colors.accent,
     },
     {
-      title: "Transparent Modal",
-      description: "Overlay without obscuring background",
-      route: "/transparent-modal",
-      color: "#FF9500",
-    }
+      title: "Reminders",
+      description: "Set up water intake reminders",
+      route: "/(tabs)/(home)/reminders",
+      icon: "bell.fill",
+      color: colors.secondary,
+    },
   ];
 
-  const renderModalDemo = ({ item }: { item: (typeof modalDemos)[0] }) => (
-    <GlassView style={[
-      styles.demoCard,
-      Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-    ]} glassEffectStyle="regular">
-      <View style={[styles.demoIcon, { backgroundColor: item.color }]}>
-        <IconSymbol name="square.grid.3x3" color="white" size={24} />
-      </View>
-      <View style={styles.demoContent}>
-        <Text style={[styles.demoTitle, { color: theme.colors.text }]}>{item.title}</Text>
-        <Text style={[styles.demoDescription, { color: theme.dark ? '#98989D' : '#666' }]}>{item.description}</Text>
-      </View>
-      <Link href={item.route as any} asChild>
-        <Pressable>
-          <GlassView style={[
-            styles.tryButton,
-            Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' }
-          ]} glassEffectStyle="clear">
-            <Text style={[styles.tryButtonText, { color: theme.colors.primary }]}>Try It</Text>
-          </GlassView>
-        </Pressable>
-      </Link>
-    </GlassView>
-  );
-
-  const renderHeaderRight = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
+  const renderMenuItem = (item: typeof menuItems[0]) => (
+    <TouchableOpacity
+      key={item.route}
+      style={styles.menuItem}
+      onPress={() => router.push(item.route as any)}
     >
-      <IconSymbol name="plus" color={theme.colors.primary} />
-    </Pressable>
-  );
-
-  const renderHeaderLeft = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol
-        name="gear"
-        color={theme.colors.primary}
-      />
-    </Pressable>
+      <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
+        <IconSymbol name={item.icon as any} color={colors.card} size={28} />
+      </View>
+      <View style={styles.menuContent}>
+        <Text style={styles.menuTitle}>{item.title}</Text>
+        <Text style={styles.menuDescription}>{item.description}</Text>
+      </View>
+      <IconSymbol name="chevron.right" color={colors.textSecondary} size={20} />
+    </TouchableOpacity>
   );
 
   return (
-    <>
+    <SafeAreaView style={commonStyles.container}>
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Building the app...",
-            headerRight: renderHeaderRight,
-            headerLeft: renderHeaderLeft,
+            title: "Hydration Tracker",
           }}
         />
       )}
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <FlatList
-          data={modalDemos}
-          renderItem={renderModalDemo}
-          keyExtractor={(item) => item.route}
-          contentContainerStyle={[
-            styles.listContainer,
-            Platform.OS !== 'ios' && styles.listContainerWithTabBar
-          ]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        />
+      
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={commonStyles.title}>💧 Stay Hydrated</Text>
+          <Text style={commonStyles.textSecondary}>
+            Track your daily water intake and build healthy hydration habits
+          </Text>
+        </View>
+
+        {/* Quick Stats Card */}
+        <View style={styles.quickStatsCard}>
+          <View style={styles.quickStat}>
+            <IconSymbol name="drop.fill" size={24} color={colors.primary} />
+            <Text style={styles.quickStatLabel}>Today's Goal</Text>
+            <Text style={styles.quickStatValue}>2000ml</Text>
+          </View>
+          <View style={styles.quickStat}>
+            <IconSymbol name="target" size={24} color={colors.success} />
+            <Text style={styles.quickStatLabel}>This Week</Text>
+            <Text style={styles.quickStatValue}>5/7 days</Text>
+          </View>
+        </View>
+
+        {/* Menu Items */}
+        <View style={styles.menuContainer}>
+          {menuItems.map(renderMenuItem)}
+        </View>
+
+        {/* Tips Section */}
+        <View style={styles.tipsSection}>
+          <Text style={styles.tipsTitle}>💡 Hydration Tips</Text>
+          <View style={styles.tipCard}>
+            <Text style={styles.tipText}>
+              Start your day with a glass of water to kickstart your metabolism and hydration.
+            </Text>
+          </View>
+        </View>
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor handled dynamically
+    padding: 20,
   },
-  listContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
   },
-  listContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
+  quickStatsCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 30,
+    elevation: 2,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
   },
-  demoCard: {
+  quickStat: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  quickStatLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  quickStatValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  menuContainer: {
+    marginBottom: 30,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    elevation: 1,
+    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
   },
-  demoIcon: {
+  menuIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -131,31 +154,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 16,
   },
-  demoContent: {
+  menuContent: {
     flex: 1,
   },
-  demoTitle: {
+  menuTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: colors.text,
     marginBottom: 4,
-    // color handled dynamically
   },
-  demoDescription: {
+  menuDescription: {
     fontSize: 14,
+    color: colors.textSecondary,
     lineHeight: 18,
-    // color handled dynamically
   },
-  headerButtonContainer: {
-    padding: 6,
+  tipsSection: {
+    marginTop: 'auto',
   },
-  tryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  tryButtonText: {
-    fontSize: 14,
+  tipsTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    // color handled dynamically
+    color: colors.text,
+    marginBottom: 12,
+  },
+  tipCard: {
+    backgroundColor: colors.highlight,
+    borderRadius: 8,
+    padding: 12,
+  },
+  tipText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
   },
 });
